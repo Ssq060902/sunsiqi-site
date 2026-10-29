@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>站点内容管理 · 孙思淇</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%2322A869'/%3E%3Ctext x='50' y='70' font-size='52' text-anchor='middle' fill='white' font-family='sans-serif'%3E%E5%AD%99%3C/text%3E%3C/svg%3E" />
+  <style>
+    :root {
+      --bg: #0E1613; --bg-alt: #121C17; --ink: #E6F2EB; --muted: #8FA89A;
+      --card: #16241D; --line: #24352C; --accent: #4FD08A; --accent-2: #7FE8AE;
+      --grad: linear-gradient(135deg, #1E9A5F, #4FD08A);
+      --radius: 16px; --radius-sm: 10px;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      background: var(--bg); color: var(--ink); line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrap { width: min(760px, 94%); margin: 0 auto; padding: 40px 0 80px; }
+
+    /* 顶栏 */
+    .top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+    .top h1 { font-size: 21px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+    .mark {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; border-radius: 9px; background: var(--grad);
+      color: #fff; font-weight: 700; box-shadow: 0 4px 12px rgba(34, 168, 105, .35);
+    }
+    .top-actions { display: flex; gap: 10px; align-items: center; }
+    .link-mini { color: var(--accent); font-size: 13px; background: none; border: none; cursor: pointer; }
+    .link-mini:hover { text-decoration: underline; }
+
+    /* 卡片与表单 */
+    .card {
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 26px; margin-bottom: 20px;
+    }
+    .card h2 { font-size: 15.5px; font-weight: 700; margin-bottom: 16px; color: var(--accent-2); letter-spacing: .5px; }
+    label { display: block; font-size: 13px; color: var(--muted); margin: 12px 0 6px; }
+    label:first-child { margin-top: 0; }
+    input[type="text"], input[type="password"], input[type="url"], textarea {
+      width: 100%; padding: 10px 12px; border-radius: var(--radius-sm);
+      border: 1px solid var(--line); background: #0F1A15; color: var(--ink);
+      font-size: 14px; font-family: inherit; outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    input:focus, textarea:focus { border-color: rgba(79, 208, 138, .6); box-shadow: 0 0 0 3px rgba(79, 208, 138, .12); }
+    textarea { resize: vertical; min-height: 74px; }
+    .hint { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+    /* 登录 */
+    #loginView { max-width: 380px; margin: 12vh auto 0; text-align: center; }
+    #loginView .mark { width: 54px; height: 54px; font-size: 26px; border-radius: 15px; margin-bottom: 14px; }
+    #loginView h1 { justify-content: center; font-size: 20px; margin-bottom: 4px; }
+    #loginView p.sub { color: var(--muted); font-size: 13px; margin-bottom: 22px; }
+    #loginView input { text-align: left; margin-bottom: 14px; }
+    #loginView .card { text-align: left; }
+
+    /* 行编辑（技能 / 项目） */
+    .row {
+      display: grid; gap: 8px; padding: 12px; border: 1px dashed var(--line);
+      border-radius: var(--radius-sm); margin-bottom: 10px; position: relative;
+      background: rgba(15, 26, 21, .6);
+    }
+    .row.skill { grid-template-columns: 1fr 2fr 34px; }
+    .row.proj { grid-template-columns: 1fr 2fr; }
+    .row.proj .proj-sub { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; }
+    .row .del {
+      position: absolute; top: -9px; right: -9px; width: 24px; height: 24px;
+      border-radius: 50%; border: none; background: #3A2A2A; color: #FF9B9B;
+      font-size: 14px; cursor: pointer; line-height: 1;
+    }
+    .row .del:hover { background: #5A2B2B; }
+    .add-btn {
+      width: 100%; padding: 9px; border-radius: var(--radius-sm); cursor: pointer;
+      border: 1.5px dashed rgba(79, 208, 138, .45); background: transparent;
+      color: var(--accent); font-size: 13.5px; transition: background .2s;
+    }
+    .add-btn:hover { background: rgba(79, 208, 138, .08); }
+    .empty-tip { color: var(--muted); font-size: 13px; text-align: center; padding: 6px 0 10px; }
+
+    /* 底部操作 */
+    .actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .btn {
+      padding: 11px 26px; border-radius: 999px; border: none; cursor: pointer;
+      font-size: 14.5px; font-weight: 600; font-family: inherit;
+      transition: transform .2s, box-shadow .2s, filter .2s;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+    .btn-primary { background: var(--grad); color: #fff; box-shadow: 0 6px 18px rgba(34, 168, 105, .35); }
+    .btn-ghost { background: transparent; color: var(--accent); border: 1.5px solid rgba(79, 208, 138, .5); }
+    .msg { font-size: 13px; min-height: 20px; margin-top: 14px; white-space: pre-wrap; word-break: break-all; }
+    .msg.ok { color: var(--accent-2); }
+    .msg.err { color: #FF9B9B; }
+    .msg pre {
+      margin-top: 8px; padding: 10px 12px; background: #0A100D; border: 1px solid var(--line);
+      border-radius: var(--radius-sm); font-size: 12px; color: var(--muted);
+      max-height: 200px; overflow: auto; text-align: left;
+    }
+    .hide { display: none !important; }
+  </style>
+</head>
+<body>
+  <!-- 登录 -->
+  <div id="loginView" class="wrap hide">
+    <div class="mark">孙</div>
+    <h1>站点内容管理</h1>
+    <p class="sub">sunsiqi-site 后台 · 仅本机可访问</p>
+    <div class="card">
+      <label for="pwd">管理密码</label>
+      <input id="pwd" type="password" placeholder="请输入管理密码" />
+      <button class="btn btn-primary" style="width:100%" id="loginBtn">登 录</button>
+      <p class="msg" id="loginMsg"></p>
+    </div>
+  </div>
+
+  <!-- 编辑 -->
+  <div id="editView" class="wrap hide">
+    <div class="top">
+      <h1><span class="mark">孙</span> 站点内容管理</h1>
+      <div class="top-actions">
+        <a class="link-mini" href="/" target="_blank">查看前台 ↗</a>
+        <button class="link-mini" id="logoutBtn">退出</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>基本信息</h2>
+      <label for="fName">姓名</label>
+      <input id="fName" type="text" maxlength="20" />
+      <label for="fBadge">身份徽章（学校 · 状态）</label>
+      <input id="fBadge" type="text" maxlength="40" />
+      <label for="fHero">首页一句话简介</label>
+      <textarea id="fHero" maxlength="120"></textarea>
+      <label for="fAbout">关于我（详细介绍，可留空隐藏）</label>
+      <textarea id="fAbout" maxlength="600"></textarea>
+      <label for="fGithub">GitHub 主页链接</label>
+      <input id="fGithub" type="url" placeholder="https://github.com/用户名" />
+    </div>
+
+    <div class="card">
+      <h2>页脚</h2>
+      <label for="fFooterText">页脚一行文字</label>
+      <input id="fFooterText" type="text" maxlength="40" />
+      <label for="fCopy">版权文字</label>
+      <input id="fCopy" type="text" maxlength="60" />
+    </div>
+
+    <div class="card">
+      <h2>技能展示（留空则前台显示「内容整理中」）</h2>
+      <div id="skillRows"></div>
+      <button class="add-btn" id="addSkill">＋ 添加一项技能</button>
+    </div>
+
+    <div class="card">
+      <h2>项目展示（留空则前台显示「内容整理中」）</h2>
+      <div id="projRows"></div>
+      <button class="add-btn" id="addProj">＋ 添加一个项目</button>
+    </div>
+
+    <div class="card">
+      <h2>操作</h2>
+      <div class="actions">
+        <button class="btn btn-primary" id="saveBtn">保存内容</button>
+        <button class="btn btn-ghost" id="publishBtn">同步到线上（git push）</button>
+      </div>
+      <p class="hint">保存只更新本机内容；「同步到线上」会把 content.json 提交并推送到 GitHub，Pages 1-2 分钟后自动更新。</p>
+      <p class="msg" id="editMsg"></p>
+    </div>
+  </div>
+
+  <script>
+    var token = sessionStorage.getItem('admin_token') || '';
+    var $ = function (id) { return document.getElementById(id); };
+
+    function showMsg(el, text, cls) {
+      el.className = 'msg ' + (cls || '');
+      el.textContent = text;
+    }
+
+    // ---------- 登录 ----------
+    function doLogin() {
+      var pwd = $('pwd').value;
+      if (!pwd) return;
+      $('loginBtn').disabled = true;
+      fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pwd })
+      }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (res) {
+          $('loginBtn').disabled = false;
+          if (res.ok) {
+            token = res.j.token;
+            sessionStorage.setItem('admin_token', token);
+            enterEdit();
+          } else {
+            showMsg($('loginMsg'), res.j.detail || '登录失败', 'err');
+          }
+        })
+        .catch(function () { $('loginBtn').disabled = false; showMsg($('loginMsg'), '无法连接后台服务', 'err'); });
+    }
+    $('loginBtn').addEventListener('click', doLogin);
+    $('pwd').addEventListener('keyup', function (e) { if (e.key === 'Enter') doLogin(); });
+
+    $('logoutBtn').addEventListener('click', function () {
+      token = ''; sessionStorage.removeItem('admin_token'); location.reload();
+    });
+
+    // ---------- 行编辑 ----------
+    function addSkillRow(data) {
+      data = data || {};
+      var div = document.createElement('div');
+      div.className = 'row skill';
+      div.innerHTML =
+        '<input class="s-name" type="text" placeholder="技能名称，如 Python" maxlength="30" />' +
+        '<input class="s-desc" type="text" placeholder="熟练度 / 简短说明（可留空）" maxlength="80" />' +
+        '<button class="del" title="删除">✕</button>';
+      div.querySelector('.s-name').value = data.name || '';
+      div.querySelector('.s-desc').value = data.desc || '';
+      div.querySelector('.del').addEventListener('click', function () { div.remove(); });
+      $('skillRows').appendChild(div);
+    }
+
+    function addProjRow(data) {
+      data = data || {};
+      var div = document.createElement('div');
+      div.className = 'row proj';
+      div.innerHTML =
+        '<input class="p-name" type="text" placeholder="项目名称" maxlength="40" />' +
+        '<input class="p-desc" type="text" placeholder="一句话介绍这个项目" maxlength="120" />' +
+        '<div class="proj-sub">' +
+        '<input class="p-link" type="url" placeholder="项目链接（可留空）" />' +
+        '<input class="p-tags" type="text" placeholder="标签，逗号分隔" maxlength="60" />' +
+        '</div>' +
+        '<button class="del" title="删除">✕</button>';
+      div.querySelector('.p-name').value = data.name || '';
+      div.querySelector('.p-desc').value = data.desc || '';
+      div.querySelector('.p-link').value = data.link || '';
+      div.querySelector('.p-tags').value = (data.tags || []).join(', ');
+      div.querySelector('.del').addEventListener('click', function () { div.remove(); });
+      $('projRows').appendChild(div);
+    }
+
+    $('addSkill').addEventListener('click', function () { addSkillRow(); });
+    $('addProj').addEventListener('click', function () { addProjRow(); });
+
+    // ---------- 载入 / 保存 ----------
+    function fillForm(c) {
+      $('fName').value = c.name || '';
+      $('fBadge').value = c.badge || '';
+      $('fHero').value = c.heroDesc || '';
+      $('fAbout').value = c.aboutDesc || '';
+      $('fGithub').value = c.github || '';
+      $('fFooterText').value = c.footerText || '';
+      $('fCopy').value = c.footerCopy || '';
+      $('skillRows').innerHTML = '';
+      $('projRows').innerHTML = '';
+      (c.skills || []).forEach(addSkillRow);
+      (c.projects || []).forEach(addProjRow);
+    }
+
+    function collect() {
+      return {
+        name: $('fName').value.trim(),
+        badge: $('fBadge').value.trim(),
+        heroDesc: $('fHero').value.trim(),
+        aboutDesc: $('fAbout').value.trim(),
+        github: $('fGithub').value.trim(),
+        footerText: $('fFooterText').value.trim(),
+        footerCopy: $('fCopy').value.trim(),
+        skills: Array.prototype.map.call(document.querySelectorAll('#skillRows .row'), function (r) {
+          return {
+            name: r.querySelector('.s-name').value.trim(),
+            desc: r.querySelector('.s-desc').value.trim()
+          };
+        }).filter(function (s) { return s.name; }),
+        projects: Array.prototype.map.call(document.querySelectorAll('#projRows .row'), function (r) {
+          return {
+            name: r.querySelector('.p-name').value.trim(),
+            desc: r.querySelector('.p-desc').value.trim(),
+            link: r.querySelector('.p-link').value.trim(),
+            tags: r.querySelector('.p-tags').value.split(/[,，]/).map(function (t) { return t.trim(); }).filter(Boolean)
+          };
+        }).filter(function (p) { return p.name; })
+      };
+    }
+
+    function request(url, body) {
+      return fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      }).then(function (r) {
+        return r.json().then(function (j) { return { ok: r.ok, j: j }; });
+      });
+    }
+
+    $('saveBtn').addEventListener('click', function () {
+      var btn = this; btn.disabled = true;
+      request('/api/content', { token: token, content: collect() })
+        .then(function (res) {
+          btn.disabled = false;
+          showMsg($('editMsg'), res.ok ? (res.j.message || '已保存') : (res.j.detail || '保存失败'), res.ok ? 'ok' : 'err');
+        })
+        .catch(function () { btn.disabled = false; showMsg($('editMsg'), '无法连接后台服务', 'err'); });
+    });
+
+    $('publishBtn').addEventListener('click', function () {
+      var btn = this; btn.disabled = true;
+      showMsg($('editMsg'), '正在推送到 GitHub …');
+      request('/api/publish', { token: token, message: '后台更新站点内容' })
+        .then(function (res) {
+          btn.disabled = false;
+          var el = $('editMsg');
+          showMsg(el, (res.ok ? res.j.message : (res.j.detail || '发布失败')), res.ok ? 'ok' : 'err');
+          if (res.j.logs && res.j.logs.length) {
+            var pre = document.createElement('pre');
+            pre.textContent = res.j.logs.join('\n\n');
+            el.appendChild(pre);
+          }
+        })
+        .catch(function () { btn.disabled = false; showMsg($('editMsg'), '无法连接后台服务', 'err'); });
+    });
+
+    // ---------- 初始化 ----------
+    function enterEdit() {
+      $('loginView').classList.add('hide');
+      $('editView').classList.remove('hide');
+      fetch('/api/content', { cache: 'no-store' })
+        .then(function (r) { return r.json(); })
+        .then(fillForm)
+        .catch(function () { showMsg($('editMsg'), '读取内容失败，请刷新重试', 'err'); });
+    }
+
+    // 线上静态站点（GitHub Pages）没有后台 API，给出明确提示
+    function showOffline() {
+      var card = $('loginView').querySelector('.card');
+      card.innerHTML =
+        '<h2 style="font-size:15.5px;color:var(--accent-2);margin-bottom:12px">后台仅在本地可用</h2>' +
+        '<p style="font-size:13.5px;color:var(--muted);line-height:1.9">当前访问的是线上静态站点，没有后台服务。<br><br>' +
+        '请在本地电脑运行 personal-site 目录下的 <b>start_site_server.bat</b>，<br>' +
+        '然后访问 <b style="color:var(--accent)">http://127.0.0.1:8778/admin</b> 登录管理。</p>';
+      $('loginView').classList.remove('hide');
+    }
+
+    // 探测后台服务是否可用：可用则进登录/编辑，不可用（线上 Pages）则提示
+    fetch('/api/content', { cache: 'no-store' })
+      .then(function (r) {
+        if (!r.ok) { showOffline(); return; }
+        if (token) {
+          // 已有 token：直接进编辑页（服务重启后 token 失效时由保存/发布报 401 提示重新登录）
+          enterEdit();
+        } else {
+          $('loginView').classList.remove('hide');
+        }
+      })
+      .catch(showOffline);
+  </script>
+</body>
+</html>

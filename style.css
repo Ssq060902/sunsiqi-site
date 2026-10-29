@@ -492,3 +492,114 @@ section { scroll-margin-top: calc(var(--header-h) + 16px); }
 
   .empty-card { padding: 44px 24px; }
 }
+
+/* ============ 关于我补充段落（后台可选填写） ============ */
+.about-extra {
+  max-width: 640px;
+  margin: 18px auto 0;
+}
+
+.about-desc-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 26px 28px;
+}
+
+.about-desc-card p { color: var(--muted); font-size: 15px; }
+
+.about-desc-card p + p { margin-top: 10px; }
+
+/* ============ 技能 / 项目卡片（后台添加内容后展示） ============ */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 18px;
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.skill-card,
+.project-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 24px 22px;
+  transition: transform .25s, border-color .25s;
+}
+
+.skill-card:hover,
+.project-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(79, 208, 138, 0.45);
+}
+
+.skill-name {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.skill-name::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--grad);
+  flex-shrink: 0;
+}
+
+.skill-desc { color: var(--muted); font-size: 14px; }
+
+.proj-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.proj-name { font-size: 17px; font-weight: 700; }
+
+.proj-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.tag {
+  font-size: 11.5px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: rgba(79, 208, 138, 0.12);
+  border: 1px solid rgba(79, 208, 138, 0.3);
+  color: var(--accent);
+}
+
+.proj-desc { color: var(--muted); font-size: 14px; margin-bottom: 10px; }
+
+.proj-link { color: var(--accent); font-size: 13.5px; font-weight: 600; }
+
+.proj-link:hover { text-decoration: underline; }
+
+@media (max-width: 680px) {
+  .cards-grid { grid-template-columns: 1fr; }
+  .about-desc-card { padding: 22px 20px; }
+}
+
+/* ============ 页脚后台入口 ============ */
+.footer-admin {
+  display: inline-block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  opacity: 0.55;
+  transition: color 0.2s, opacity 0.2s;
+}
+
+.footer-admin:hover {
+  color: var(--accent);
+  opacity: 1;
+}
